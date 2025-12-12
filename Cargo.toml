@@ -1,6 +1,6 @@
 [package]
 name = "snap-coin-wallet"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2024"
 authors = ["Ice"]
 description = "A simple CLI wallet client for interacting with a Snap Coin network"

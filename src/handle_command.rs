@@ -12,7 +12,7 @@ use snap_coin::{
     to_nano, to_snap,
 };
 
-use crate::{clear_terminal, input::read_pin, save_last_login};
+use crate::{input::read_pin, save_last_login};
 
 /// Encrypt and save wallets
 fn persist(wallets: &HashMap<String, Private>, pin: &str) {
@@ -275,10 +275,6 @@ pub async fn handle_command(
 
                 _ => println!("Unknown wallet subcommand: {}", subcmd),
             }
-        }
-
-        "clear" => {
-            clear_terminal();
         }
 
         "change-pin" => {

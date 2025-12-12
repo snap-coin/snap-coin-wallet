@@ -17,9 +17,6 @@ use crate::{
     input::{read_input, read_pin},
 };
 
-pub fn clear_terminal() {
-    print!("\x1B[2J\x1B[1;1H");
-}
 
 /// Returns wallet file path
 fn wallet_path() -> Result<PathBuf, Error> {
@@ -212,6 +209,11 @@ async fn main() -> Result<(), Error> {
 
                 if ["exit", "e", "quit", "q"].contains(&command) {
                     break;
+                }
+                if command == "clear" || command == "cls" {
+                    rl.clear_history()?;
+                    rl.clear_screen()?;
+                    continue;
                 }
 
                 // Pass mutable references to handle_command
