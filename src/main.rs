@@ -1,8 +1,5 @@
 use std::{
-    collections::HashMap,
-    fs::File,
-    io::{Read, Write},
-    path::PathBuf,
+    collections::HashMap, env::args, fs::File, io::{Read, Write}, path::PathBuf
 };
 
 use anyhow::Error;
@@ -186,7 +183,13 @@ async fn main() -> Result<(), Error> {
     );
 
     // --- Connect to node ---
-    let node_addr = "127.0.0.1:3003";
+    let mut node_addr = "127.0.0.1:3003";
+
+    let args = args().collect::<Vec<String>>();
+    if let Some(node) = args.get(1) {
+        node_addr = node;
+    }
+
     let client = Client::connect(node_addr.parse()?).await?;
     println!("Connected to node at {}", node_addr);
 
