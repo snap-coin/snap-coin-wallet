@@ -127,6 +127,14 @@ fn create_wallet(wallets: &mut HashMap<String, Private>, pin: &str) -> Result<St
     wallets.insert(name.clone(), wallet);
     save_wallets(wallets, pin)?;
     println!("Wallet '{}' created successfully.", name);
+    println!();
+    println!("Please make sure to save the wallet private key, in a SAFE, OFFLINE LOCATION!");
+    println!("Wallet private key (base 36): {}", wallet.dump_base36());
+    println!(
+        "!!! If you loose this key, you can and will loose your snap coin's. There is NO way to recover them if lost !!!"
+    );
+    println!("!!! If anyone sees this key, they can and will still your snap coin's !!!");
+    println!();
 
     Ok(name)
 }
@@ -172,7 +180,10 @@ async fn main() -> Result<(), Error> {
         current_wallet,
         wallet.to_public().dump_base36()
     );
-    println!("Consider donating to the developer :) {}", DEV_WALLET.dump_base36());
+    println!(
+        "Consider donating to the developer :) {}",
+        DEV_WALLET.dump_base36()
+    );
 
     // --- Connect to node ---
     let node_addr = "127.0.0.1:3003";

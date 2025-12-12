@@ -3,7 +3,7 @@ name = "snap-coin-wallet"
 version = "1.0.2"
 edition = "2024"
 authors = ["Ice"]
-description = "The core library for developing and using Snap Coin"
+description = "A simple CLI wallet client for interacting with a Snap Coin network"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 

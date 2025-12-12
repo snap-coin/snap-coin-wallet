@@ -56,26 +56,30 @@ pub async fn handle_command(
     match cmd {
         "help" => {
             println!("Available commands:");
-            println!("  balance              - Show wallet balance");
-            println!("  available            - List available UTXOs");
-            println!("  history              - Show transaction history");
-            println!("  tx-info <TXID>            - Show transaction details");
-            println!("  send <addr> <amt>... - Send SNAP to addresses");
+            println!("  balance                    - Show wallet balance");
+            println!("  available                  - List available UTXOs");
+            println!("  history                    - Show transaction history");
+            println!("  tx-info <txid>             - Show transaction details");
+            println!("  send <addr> <amt>...       - Send SNAP to addresses");
             println!("  wallet <subcmd> [<wallet>] - Wallet management commands");
             println!("    subcommands:");
-            println!("      delete [<wallet>]  - Delete the specified wallet (default: current)");
             println!(
-                "      private [<wallet>] - Show private key of the wallet (default: current)"
+                "      delete [<wallet>]      - Delete the specified wallet (default: current)"
             );
-            println!("      public [<wallet>]  - Show public key of the wallet (default: current)");
             println!(
-                "      switch [<wallet>]  - Switch to the specified wallet (default: current)"
+                "      private [<wallet>]     - Show private key of the wallet (default: current)"
+            );
+            println!(
+                "      public [<wallet>]      - Show public key of the wallet (default: current)"
+            );
+            println!(
+                "      switch [<wallet>]      - Switch to the specified wallet (default: current)"
             );
 
-            println!("  change-pin           - Change wallet PIN");
-            println!("  help                 - Show this help message");
-            println!("  clear                - Clears output history");
-            println!("  exit, quit           - Exit the wallet");
+            println!("  change-pin                 - Change wallet PIN");
+            println!("  help                       - Show this help message");
+            println!("  clear                      - Clears output history");
+            println!("  exit, quit                 - Exit the wallet");
         }
 
         "balance" => {
