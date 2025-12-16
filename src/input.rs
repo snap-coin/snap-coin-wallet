@@ -1,5 +1,5 @@
 use crossterm::{
-    event::{self, Event, KeyCode},
+    event::{self, Event, KeyCode, KeyEventKind},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 use std::io::{self, Write};
@@ -13,6 +13,9 @@ pub fn read_pin(prompt: &str) -> Result<String, std::io::Error> {
 
     while pin.len() < 6 {
         if let Event::Key(key_event) = event::read()? {
+            if key_event.kind != KeyEventKind::Press {
+                continue;
+            }
             match key_event.code {
                 KeyCode::Char(c) if c.is_ascii_digit() => {
                     pin.push(c);
