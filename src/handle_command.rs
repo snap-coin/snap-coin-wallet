@@ -175,7 +175,7 @@ pub async fn handle_command(
             let tx_id = transaction.transaction_id.unwrap();
             println!("Created transaction: {}", tx_id.dump_base36());
 
-            if pin != read_pin("Enter 6-digit PIN to confirm")? {
+            if pin != read_pin("Enter 6-digit PIN to confirm: ")? {
                 println!("PIN incorrect!");
                 return Ok(());
             }
