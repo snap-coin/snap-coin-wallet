@@ -111,7 +111,7 @@ pub async fn handle_command(
         }
 
         "history" => {
-            let history = client.get_transactions_of_address(&public).await?;
+            let history = client.get_transactions_of_address(public).await?;
             println!("Transaction History ({} items):", history.len());
             for tx_id in history {
                 println!("  - {}", tx_id.dump_base36());
