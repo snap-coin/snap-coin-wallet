@@ -4,7 +4,7 @@ use snap_coin::{
     api::client::Client,
     blockchain_data_provider::BlockchainDataProvider,
     build_transaction,
-    core::transaction::{TransactionId, TransactionOutput},
+    core::transaction::{TransactionId, TransactionInput, TransactionOutput},
     crypto::{
         Hash,
         keys::{Private, Public},
@@ -36,6 +36,7 @@ pub async fn handle_command(
     current_wallet: &mut String,
     pin: &str,
     command: String,
+    used_session_inputs: &mut Vec<TransactionInput>
 ) -> Result<(), anyhow::Error> {
     let mut parts = command.trim().split_whitespace();
     let cmd = match parts.next() {
@@ -162,7 +163,7 @@ pub async fn handle_command(
                 }
             }
 
-            let transaction = build_transaction(client, *wallet, payments).await;
+            let transaction = build_transaction(client, *wallet, payments, used_session_inputs.clone()).await;
             if let Err(ref e) = transaction {
                 println!("Failed to create transaction: {}", e);
                 return Ok(());
@@ -174,7 +175,14 @@ pub async fn handle_command(
             let tx_id = transaction.transaction_id.unwrap();
             println!("Created transaction: {}", tx_id.dump_base36());
 
+            if pin != read_pin("Enter 6-digit PIN to confirm")? {
+                println!("PIN incorrect!");
+                return Ok(());
+            }
+
             println!("Submitting transaction...");
+
+            let used_inputs = transaction.inputs.clone();
             let status = client.submit_transaction(transaction).await?;
             println!("Transaction submission status: {:?}", status);
 
@@ -186,6 +194,8 @@ pub async fn handle_command(
                 .any(|tx| tx.transaction_id == Some(tx_id))
             {
                 println!("Transaction successfully submitted.");
+                used_session_inputs.extend_from_slice(&used_inputs);
+                println!("Saved spent UTXOs to session.");
             } else {
                 println!("Transaction failed to submit.");
             }

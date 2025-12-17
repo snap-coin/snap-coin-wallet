@@ -1,11 +1,18 @@
 use std::{
-    collections::HashMap, env::args, fs::File, io::{Read, Write}, path::PathBuf
+    collections::HashMap,
+    env::args,
+    fs::File,
+    io::{Read, Write},
+    path::PathBuf,
 };
 
 use anyhow::Error;
 use rustyline::Editor;
 use rustyline::{error::ReadlineError, history::DefaultHistory};
-use snap_coin::{api::client::Client, crypto::keys::Private, economics::DEV_WALLET};
+use snap_coin::{
+    api::client::Client, core::transaction::TransactionInput, crypto::keys::Private,
+    economics::DEV_WALLET,
+};
 
 mod encryption;
 mod handle_command;
@@ -16,7 +23,6 @@ use crate::{
     handle_command::handle_command,
     input::{read_input, read_pin},
 };
-
 
 /// Returns wallet file path
 fn wallet_path() -> Result<PathBuf, Error> {
@@ -197,6 +203,8 @@ async fn main() -> Result<(), Error> {
         rl.load_history(&hist_path).ok();
     }
 
+    let mut used_session_inputs: Vec<TransactionInput> = vec![];
+
     loop {
         let readline = rl.readline("snap coin wallet > ");
         match readline {
@@ -223,6 +231,7 @@ async fn main() -> Result<(), Error> {
                     &mut current_wallet,
                     &pin,
                     command.to_string(),
+                    &mut used_session_inputs,
                 )
                 .await?;
             }
