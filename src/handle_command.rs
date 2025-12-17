@@ -4,7 +4,7 @@ use snap_coin::{
     api::client::Client,
     blockchain_data_provider::BlockchainDataProvider,
     build_transaction,
-    core::transaction::{TransactionId, TransactionInput, TransactionOutput},
+    core::transaction::{MAX_TRANSACTION_IO, TransactionId, TransactionInput, TransactionOutput},
     crypto::{
         Hash,
         keys::{Private, Public},
@@ -36,7 +36,7 @@ pub async fn handle_command(
     current_wallet: &mut String,
     pin: &str,
     command: String,
-    used_session_inputs: &mut Vec<TransactionInput>
+    used_session_inputs: &mut Vec<TransactionInput>,
 ) -> Result<(), anyhow::Error> {
     let mut parts = command.trim().split_whitespace();
     let cmd = match parts.next() {
@@ -61,6 +61,7 @@ pub async fn handle_command(
             println!("  available                  - List available UTXOs");
             println!("  history                    - Show transaction history");
             println!("  tx-info <txid>             - Show transaction details");
+            println!("  merge-available            - Merge all available into one utxo.");
             println!("  send <addr> <amt>...       - Send SNAP to addresses");
             println!("  wallet <subcmd> [<wallet>] - Wallet management commands");
             println!("    subcommands:");
@@ -163,7 +164,8 @@ pub async fn handle_command(
                 }
             }
 
-            let transaction = build_transaction(client, *wallet, payments, used_session_inputs.clone()).await;
+            let transaction =
+                build_transaction(client, *wallet, payments, used_session_inputs.clone()).await;
             if let Err(ref e) = transaction {
                 println!("Failed to create transaction: {}", e);
                 return Ok(());
@@ -301,6 +303,46 @@ pub async fn handle_command(
                 println!("Changed PIN.");
                 exit(0);
             }
+        }
+
+        "merge-available" => {
+            let confirm = read_pin("Enter current PIN: ")?;
+            if confirm != pin {
+                println!("Incorrect PIN.");
+                return Ok(());
+            }
+
+            let available = client
+                .get_available_transaction_outputs(wallet.to_public())
+                .await?;
+            let mut part_count = 0;
+            for part in available.chunks(MAX_TRANSACTION_IO - 1) {
+                let amount = part.iter().fold(0, |acc, part| part.1.amount + acc);
+                let mut tx = build_transaction(
+                    client,
+                    *wallet,
+                    vec![(wallet.to_public(), amount)],
+                    used_session_inputs.clone(),
+                )
+                .await?;
+                println!("Computing Proof Of Work for transaction");
+                tx.compute_pow(&client.get_transaction_difficulty().await?, None)?;
+                println!(
+                    "Built transaction: {}",
+                    tx.transaction_id.unwrap().dump_base36()
+                );
+
+                println!("Submitting transaction...");
+
+                let used_inputs = tx.inputs.clone();
+                client.submit_transaction(tx).await??;
+                println!("Submitted transaction");
+                used_session_inputs.extend_from_slice(&used_inputs);
+
+                part_count += 1;
+            }
+
+            println!("Merged available utxos ({}) into {} utxos", available.len(), part_count);
         }
 
         _ => println!(
