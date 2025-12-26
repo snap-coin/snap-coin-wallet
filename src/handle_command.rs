@@ -165,7 +165,7 @@ pub async fn handle_command(
             }
 
             let transaction =
-                build_transaction(client, *wallet, payments, used_session_inputs.clone()).await;
+                build_transaction(client, *wallet, payments, &used_session_inputs).await;
             if let Err(ref e) = transaction {
                 println!("Failed to create transaction: {}", e);
                 return Ok(());
@@ -322,7 +322,7 @@ pub async fn handle_command(
                     client,
                     *wallet,
                     vec![(wallet.to_public(), amount)],
-                    used_session_inputs.clone(),
+                    &used_session_inputs,
                 )
                 .await?;
                 println!("Computing Proof Of Work for transaction");
