@@ -173,7 +173,7 @@ pub async fn handle_command(
 
             let mut transaction = transaction.unwrap();
             println!("Computing Proof of Work...");
-            transaction.compute_pow(&client.get_transaction_difficulty().await?, None)?;
+            transaction.compute_pow(&client.get_live_transaction_difficulty().await?, Some(0.1f64))?;
             let tx_id = transaction.transaction_id.unwrap();
             println!("Created transaction: {}", tx_id.dump_base36());
 
